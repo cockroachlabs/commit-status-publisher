@@ -1,8 +1,10 @@
 package jetbrains.buildServer.commitPublisher.github;
 
 import com.intellij.openapi.diagnostic.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import jetbrains.buildServer.commitPublisher.*;
 import jetbrains.buildServer.serverSide.*;
 import org.jetbrains.annotations.NotNull;
@@ -36,30 +38,42 @@ class GitHubPublisher extends BaseCommitStatusPublisher {
 
   @Override
   public boolean buildStarted(@NotNull SBuild build, @NotNull BuildRevision revision) throws PublisherException {
+    // Fired when a build is kicked off.
+    LOG.debug("buildStarted: " + build.getBuildId());
     updateBuildStatus(build, revision, true);
     return true;
   }
 
   @Override
   public boolean buildFinished(@NotNull SBuild build, @NotNull BuildRevision revision) throws PublisherException {
+    // Fired when a build completes either with success or failure.
+    LOG.debug("buildFinished: " + build.getBuildId() + " " + build.getBuildStatus().getText());
     updateBuildStatus(build, revision, false);
     return true;
   }
 
   @Override
   public boolean buildInterrupted(@NotNull SBuild build, @NotNull BuildRevision revision) throws PublisherException {
+    // This is called for an explicit cancellation of a build.
+    LOG.debug("buildInterrupted: " + build.getBuildId() + " " + build.getBuildStatus().getText() + " " + build.getBuildStatus().getPriority());
     updateBuildStatus(build, revision, false);
     return true;
   }
 
   @Override
   public boolean buildFailureDetected(@NotNull SBuild build, @NotNull BuildRevision revision) throws PublisherException {
-    updateBuildStatus(build, revision, false);
+    // This implements an early-out for composite builds in which one or more components fail. In our case,
+    // this gets in the way when a sub-project is running on a machine that gets preempted. We don't seem to have access
+    // to the underlying INTERRUPTED_WITH_RETRY status to do a better job of filtering.
+    LOG.debug("buildFailureDetected: " + build.getBuildId() + " " + build.getBuildStatus().getText() + " " + build.getBuildStatus().getPriority());
+    // updateBuildStatus(build, revision, false);
     return true;
   }
 
   @Override
   public boolean buildMarkedAsSuccessful(@NotNull final SBuild build, @NotNull final BuildRevision revision, final boolean buildInProgress) throws PublisherException {
+    // This gets called if a TC user explicitly overrides a failed build and also when a component build is retried.
+    LOG.debug("buildMarkedAsSuccessful: " + build.getBuildId() + " " + build.getBuildStatus().getText() + " " + build.getBuildStatus().getPriority() + " " + buildInProgress);
     updateBuildStatus(build, revision, buildInProgress);
     return true;
   }

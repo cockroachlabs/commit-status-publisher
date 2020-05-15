@@ -6,8 +6,8 @@
     <version>$PluginVersion</version>
     <description>Publishes the status of a commit to an external system</description>
     <vendor>
-      <name>JetBrains</name>
-      <url>http://www.jetbrains.com</url>
+      <name>JetBrains + Cockroach Labs</name>
+      <url>https://github.com/cockroachlabs/commit-status-publisher</url>
     </vendor>
   </info>
   <deployment use-separate-classloader="true" node-responsibilities-aware="true"/>

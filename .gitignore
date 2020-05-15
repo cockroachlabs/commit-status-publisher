@@ -3,5 +3,7 @@ target
 *.iml
 !modules/*.iml
 .gradle
-/build/
-/commit-status-publisher-server/build/
+build/
+/commit-status-publisher-server/build/gradle.properties
+gradle.properties
+.DS_Store
